@@ -4,6 +4,7 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { Menu, MenuItem } from '@material-ui/core';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Grid from '@mui/material/Grid';
@@ -16,15 +17,16 @@ import TextField from "@material-ui/core/TextField";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
-import { login, loginUser, loadAllAccounts, refreshAllAccounts } from './auth/authSlice'
+import { login, loginUser, loadAllAccounts, refreshAllAccounts } from '../auth/authSlice'
 import { isEmpty } from "lodash"
 
 
-class MainComponent extends React.Component {
+class AccountsComponent extends React.Component {
 
     constructor(props) {
         super(props)
     }
+
 
     componentDidMount() {
         if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
@@ -33,41 +35,28 @@ class MainComponent extends React.Component {
         }
 
         if (isEmpty(this.props.connectedAccounts)) {
-            console.log("connecting accounts")
+            console.log("Connecting accounts")
             this.props.loadAllAccounts()
 
         }
-        console.log("user connected", this.props.connectedUser)
-        console.log("connected accounts", this.props.connectedAccounts)
+        console.log("User connected:", this.props.connectedUser)
+        console.log("Connected accounts:", this.props.connectedAccounts)
     }
 
     refreshAllAccounts() {
-        console.log("okay!!")
+        console.log("Refreshing Accounts")
         this.props.refreshAllAccounts()
         this.props.loadAllAccounts()
     }
 
     render() {
         return (
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
-                    <Toolbar variant="dense">
-                        <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" color="inherit" component="div" style={{ flexGrow: 1 }}>
-                            Pomegranate
-                        </Typography>
-                        <Typography variant="h8" color="inherit" component="div">
-                            {this.props.connectedUser}
-                            <Button onClick={() => this.refreshAllAccounts()} color="inherit">Refresh</Button>
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
+            <div>
+                <Button style={{margin: 4 }} onClick={() => this.refreshAllAccounts()} variant="contained">Refresh</Button>
                 {this.props.connectedAccounts.map((data, idx) => {
-                    return <Grid container spacing={4}>
+                    return <Grid key={idx} container spacing={4}>
                         <Grid item xs={4}>
-                            <Card sx={{ minWidth: 275 }}>
+                            <Card sx={{ margin: 1, minWidth: 275, borderRadius: '4px', border: 1, borderBottom:0, borderColor: 'grey.500' }}>
                                 <CardContent>
                                     <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
                                         {data.account_name}
@@ -86,9 +75,7 @@ class MainComponent extends React.Component {
                         </Grid>
                     </Grid>
                 })}
-
-            </Box >
-
+            </div>
         )
     }
 }
@@ -106,4 +93,4 @@ const mapDispatchToProps = (dispatch) => {
         refreshAllAccounts: () => dispatch(refreshAllAccounts())
     }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(MainComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(AccountsComponent);
