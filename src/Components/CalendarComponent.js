@@ -76,6 +76,8 @@ class CalendarComponent extends React.Component {
         super(props)
         this.state = {
             value: new Date(),
+            datePickerValue: new Date(),
+            textFieldValue: "",
             events: {
                 '2022-08-28': ["Get Diapers"],
                 '2022-08-30': ["Change Oil"],
@@ -91,11 +93,11 @@ class CalendarComponent extends React.Component {
         for (var date in this.state.events) {
             var dateFormatted = new Date(date + 'T00:00:00')
             const daysBetweenDates = getNumberOfDays(eventTarget, dateFormatted);
-            if (daysBetweenDates >= 0 && daysBetweenDates <= 30) {
+            if (daysBetweenDates > 0 && daysBetweenDates < 30) {
                 tempList[date] = this.state.events[date]
             }
         }
-        console.log(moment(eventTarget).format("YYYY-MM-DD"))
+
         this.setState({
             value: eventTarget,
 
@@ -103,9 +105,21 @@ class CalendarComponent extends React.Component {
             nextThirtyDays: tempList
         })
     }
-    addNote(e) {
-        console.log(e.text)
+    handleDatePickerChange(eventTarget) {
+        this.setState({
+            datePickerValue: eventTarget
+        })
     }
+    handleTextFieldChange(eventTarget) {
+        this.setState({
+            textFieldValue: eventTarget.target.value
+        })
+    }
+    addNote() {
+        console.log("hey")
+        console.log(this.state.datePickerValue, this.state.textFieldValue)
+    }
+    
 
     componentDidMount() {
         this.handleDateChange(this.state.value)
@@ -115,86 +129,107 @@ class CalendarComponent extends React.Component {
         return (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <div style={{ padding: 10 }}>
-                    <Calendar onChange={e => this.handleDateChange(e)} value={this.state.value} />
-                    <Typography align="center" variant={'h6'} gutterBottom padding={1}>
-                        <TextField id="outlined-basic" label="Add event" variant="outlined" InputProps={{
-                            className: classes.input
-                        }}
-                            InputLabelProps={{
-                                // shrink: true
-                            }}
-                        />
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DesktopDatePicker
-                                label="Event Date"
-                                inputFormat="MM/dd/yyyy"
-                                value={this.state.value}
-                                onChange={e => this.handleDateChange(e)}
-                                renderInput={(params) => <TextField {...params} />}
-                            />
-                        </LocalizationProvider>
-                        <Button className={classes.input} variant="contained" onClick={(e) => this.addNote(e)}>Add Todo</Button>
-                    </Typography>
-                    <Typography variant="h5" align="center">
-                        Today
-                    </Typography>
-                    {this.state.selectedEvents ?
-                        <List dense={true}
-                            height={300}
-                            sx={{
-                                width: '100%',
-                                bgcolor: 'background.paper',
-                                overflow: 'auto',
-                                maxHeight: 200,
-
-                            }}>
-                            {this.state.selectedEvents && this.state.selectedEvents.map((d, i) => {
-                                return <ListItem key={i}>
-                                    <ListItemText
-                                        align="center"
-                                        primary={moment(this.state.value).format("YYYY-MM-DD")}
-                                        secondary={d}
+                    <Grid container spacing={12}>
+                        <Grid item xs={12} align="center">
+                            <Calendar onChange={e => this.handleDateChange(e)} value={this.state.value} />
+                            <Typography align="center" variant={'h6'} gutterBottom padding={1}>
+                                <TextField 
+                                    id="outlined-basic" 
+                                    label="Add event" 
+                                    variant="outlined" 
+                                    InputProps={{
+                                        className: classes.input
+                                    }}
+                                    InputLabelProps={{
+                                        // shrink: true
+                                    }}
+                                    value={this.state.textFieldValue}
+                                    onChange={(e) => this.handleTextFieldChange(e)}
+                                />
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DesktopDatePicker
+                                        label="Event Date"
+                                        inputFormat="MM/dd/yyyy"
+                                        value={this.state.datePickerValue}
+                                        onChange={e => this.handleDatePickerChange(e)}
+                                        renderInput={(params) => <TextField {...params} />}
                                     />
-                                </ListItem>
-                            })}
+                                </LocalizationProvider>
+                                <Button className={classes.input} variant="contained" onClick={this.addNote.bind(this)}>Add Todo</Button>
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="h5" align="center">
+                                Today
+                            </Typography>
+                            <List dense={true}
+                                height={300}
+                                sx={{
+                                    width: '100%',
+                                    bgcolor: 'background.paper',
+                                    overflow: 'auto',
+                                    maxHeight: 200,
 
-                        </List>
-                        : <Typography variant="body2" align="center">
-                            No Tasks for Today
-                        </Typography>
-                    }
-
-                    <Typography variant="h5" align="center">
-                        Next 30 days
-                    </Typography>
-                    {this.state.nextThirtyDays && Object.keys(this.state.nextThirtyDays).length > 0 ?
-                        <List dense={true}
-                            height={300}
-                            sx={{
-                                width: '100%',
-                                bgcolor: 'background.paper',
-                                overflow: 'auto',
-                                maxHeight: 200,
-
-                            }}>
-                            {Object.entries(this.state.nextThirtyDays).map(([key, value]) => {
-                                return value.map((d, i) => {
-                                    return <ListItem key={d}>
+                                }}>
+                                {this.state.selectedEvents ?
+                                    this.state.selectedEvents.map((d, i) => {
+                                        return <ListItem key={i}>
+                                            <ListItemText
+                                                align="center"
+                                                primary={moment(this.state.value).format("YYYY-MM-DD")}
+                                                secondary={d}
+                                            />
+                                        </ListItem>
+                                    })
+                                    :
+                                    <ListItem key={1}>
                                         <ListItemText
                                             align="center"
-                                            primary={key}
-                                            secondary={d}
+                                            primary={"No events for Today"}
                                         />
                                     </ListItem>
-                                })
 
-                            })}
-                        </List>
-                        : <Typography variant="body2" align="center">
-                            No Tasks for the next 30 days
-                        </Typography>
-                    }
+                                }
+                            </List>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="h5" align="center">
+                                Next 30 days
+                            </Typography>
 
+                            <List dense={true}
+                                height={300}
+                                sx={{
+                                    width: '100%',
+                                    bgcolor: 'background.paper',
+                                    overflow: 'auto',
+                                    maxHeight: 200,
+
+                                }}>
+                                {this.state.nextThirtyDays && Object.keys(this.state.nextThirtyDays).length > 0 ?
+                                    Object.entries(this.state.nextThirtyDays).map(([key, value]) => {
+                                        return value.map((d, i) => {
+                                            return <ListItem key={d}>
+                                                <ListItemText
+                                                    align="center"
+                                                    primary={key}
+                                                    secondary={d}
+                                                />
+                                            </ListItem>
+                                        })
+
+                                    }) :
+                                    <ListItem key={1}>
+                                        <ListItemText
+                                            align="center"
+                                            primary={"No events for next 30 days"}
+                                        />
+                                    </ListItem>
+                                }
+                            </List>
+
+                        </Grid>
+                    </Grid>
                 </div>
 
             </div>
