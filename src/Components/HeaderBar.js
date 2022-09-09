@@ -37,8 +37,8 @@ class HeaderBar extends React.Component {
                         </Typography>
 
                         <Typography variant="h8" color="inherit" component="div">
-                            <Button onClick={() => this.handleClick(1)} color="inherit">Accounts</Button>
-                            <Button onClick={() => this.handleClick(2)} color="inherit">Calendar</Button>
+                            <Button onClick={() => this.props.handleClick(1)} color="inherit">Accounts</Button>
+                            <Button onClick={() => this.props.handleClick(2)} color="inherit">Calendar</Button>
                             
                             {this.props.connectedUser}
                         </Typography>

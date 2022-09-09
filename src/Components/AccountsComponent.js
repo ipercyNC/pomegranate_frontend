@@ -29,14 +29,10 @@ class AccountsComponent extends React.Component {
 
 
     componentDidMount() {
-        if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
-            console.log("Logging in user")
-            this.props.loginUser()
-        }
-
         if (isEmpty(this.props.connectedAccounts)) {
             console.log("Connecting accounts")
-            this.props.loadAllAccounts()
+            console.log(this.props.connectedUser)
+            this.props.loadAllAccounts(this.props.connectedUser)
 
         }
         console.log("User connected:", this.props.connectedUser)
@@ -46,7 +42,7 @@ class AccountsComponent extends React.Component {
     refreshAllAccounts() {
         console.log("Refreshing Accounts")
         this.props.refreshAllAccounts()
-        this.props.loadAllAccounts()
+        this.props.loadAllAccounts(this.props.connectedUser)
     }
 
     render() {
@@ -88,8 +84,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        loginUser: () => dispatch(loginUser()),
-        loadAllAccounts: () => dispatch(loadAllAccounts()),
+        loadAllAccounts: (username) => dispatch(loadAllAccounts(username)),
         refreshAllAccounts: () => dispatch(refreshAllAccounts())
     }
 }

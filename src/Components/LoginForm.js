@@ -24,14 +24,17 @@ class LoginForm extends React.Component {
         super(props)
         this.state = {
             showPassword: false,
-            password: ''
+            password: '',
+            username: ''
         }
 
     }
     handlePasswordChange = (event) => {
         this.setState({ 'password': event.target.value });
     };
-
+    handleUsernameChange = (event) => {
+        this.setState({ 'username': event.target.value });
+    };
     handleClickShowPassword = () => {
         this.setState({ showPassword: !this.state.showPassword })
     };
@@ -39,6 +42,12 @@ class LoginForm extends React.Component {
     handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
+    async handleLogin() {
+        if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
+            console.log("Logging in user")
+            await this.props.loginUser(this.state.username, this.state.password)
+        }
+    }
 
     render() {
         return (
@@ -59,6 +68,8 @@ class LoginForm extends React.Component {
                                 placeholder="Username"
                                 id="standard-start-adornment"
                                 variant="standard"
+                                value={this.state.username}
+                                onChange={(e) => this.handleUsernameChange(e)}
                                 sx={{ width: '50ch', margin: 2 }}
                             />
                             <Input
@@ -80,7 +91,7 @@ class LoginForm extends React.Component {
                                 placeholder="Password"
                                 sx={{ margin: 2 }}
                             />
-                            <Button variant="contained" sx={{ margin: 2 }}>Login</Button>
+                            <Button variant="contained" sx={{ margin: 2 }} onClick={this.handleLogin.bind(this)}>Login</Button>
 
                         </FormControl>
                     </Grid>
@@ -97,6 +108,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        loginUser: (username, password) => dispatch(loginUser(username, password)),
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

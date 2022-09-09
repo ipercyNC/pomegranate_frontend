@@ -27,14 +27,16 @@ export default authSlice.reducer
 
 const url = "/auth"
 
-export const loginUser = () => (dispatch) => {
+export const loginUser = (username, password) => (dispatch) => {
+    //ipercy,testing
+    console.log(username,password)
     const requestOptions = {
         method: 'POST',
         crossDomain: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            "username": "ipercy",
-            "password": "testing"
+            "username": username,
+            "password": password
         })
 
     }
@@ -44,18 +46,26 @@ export const loginUser = () => (dispatch) => {
             return response.json()
         })
         .then(response => {
-            dispatch(login("ipercy"))
+            if (response['LoginResult']=== 'Success') {
+                dispatch(login(username))
+                console.log("Login success")
+                return true
+            } else {
+                console.log("Login failed")
+                return false
+            }
+
         })
     )
 }
 
-export const loadAllAccounts = () => (dispatch) => {
+export const loadAllAccounts = (username) => (dispatch) => {
     const requestOptions = {
         method: 'POST',
         crossDomain: true,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            "username": "ipercy"
+            "username": username
         })
 
     }

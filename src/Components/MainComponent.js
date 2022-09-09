@@ -56,7 +56,7 @@ class MainComponent extends React.Component {
                     <LoginForm />
                     :
                     <div>
-                        <HeaderBar />
+                        <HeaderBar handleClick={this.handleClick} />
                         {this.state.currentComponent === "main" && <AccountsComponent />}
                         {this.state.currentComponent === "calendar" && <CalendarComponent />}
                     </div>

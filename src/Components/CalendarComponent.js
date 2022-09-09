@@ -60,11 +60,6 @@ class CalendarComponent extends React.Component {
         }
     }
    async componentDidUpdate() {
-        if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
-            console.log("Logging in user")
-            this.props.loginUser()
-        }
-
         if (isEmpty(this.props.calendarEvents)) {
             console.log("Loading Calendar events")
             this.props.loadAllCalendarEvents()
@@ -73,9 +68,6 @@ class CalendarComponent extends React.Component {
         }
         console.log("User connected:", this.props.connectedUser)
         console.log("Loaded events:", this.props.calendarEvents)
-        // Object.entries(this.state.calendarEvents).map(([key, value]) => {
-        //     console.log(key,value)
-        // })
     }
 
     handleDateChange(eventTarget) {
