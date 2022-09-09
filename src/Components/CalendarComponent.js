@@ -1,26 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Menu, MenuItem } from '@material-ui/core';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
 import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
-import { login, loginUser, loadAllAccounts, refreshAllAccounts } from '../auth/authSlice'
 import { isEmpty } from "lodash"
 import { Calendar } from 'react-calendar'
-import globalize from 'globalize'
 import './calendar.css'
 import moment from 'moment'
 import List from '@mui/material/List';
@@ -30,8 +15,7 @@ import { withStyles, createStyles, makeStyles, Theme } from "@material-ui/core/s
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { isThisMonth } from "date-fns";
-
+import { login, loginUser, loadAllCalendarEvents } from '../auth/authSlice'
 
 
 const styles = theme => ({
@@ -40,20 +24,7 @@ const styles = theme => ({
         height: 38
     }
 })
-class ItemRenderer {
 
-    render() {
-        console.log("hey!")
-        // Access the items array using the "data" prop:
-        const item = this.props.data[this.props.index];
-        console.log(item)
-        return (
-            <div style={this.props.style}>
-                {item.name}
-            </div>
-        );
-    }
-}
 function getNumberOfDays(start, end) {
     // Copied from https://stackabuse.com/javascript-get-number-of-days-between-dates/
     const date1 = new Date(start);
@@ -88,6 +59,25 @@ class CalendarComponent extends React.Component {
             nextThirtyDays: []
         }
     }
+   async componentDidUpdate() {
+        if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
+            console.log("Logging in user")
+            this.props.loginUser()
+        }
+
+        if (isEmpty(this.props.calendarEvents)) {
+            console.log("Loading Calendar events")
+            this.props.loadAllCalendarEvents()
+            console.log(this.props.calendarEvents)
+
+        }
+        console.log("User connected:", this.props.connectedUser)
+        console.log("Loaded events:", this.props.calendarEvents)
+        // Object.entries(this.state.calendarEvents).map(([key, value]) => {
+        //     console.log(key,value)
+        // })
+    }
+
     handleDateChange(eventTarget) {
         var tempList = {}
         for (var date in this.state.events) {
@@ -238,11 +228,15 @@ class CalendarComponent extends React.Component {
 }
 const mapStateToProps = state => {
     return {
+        connectedUser: state.auth.connectedUser,
+        calendarEvents: state.auth.calendarEvents
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        loginUser: () => dispatch(loginUser()),
+        loadAllCalendarEvents: () => dispatch(loadAllCalendarEvents())
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CalendarComponent));

@@ -5,7 +5,8 @@ export const authSlice = createSlice({
     name: 'counter',
     initialState: {
         connectedUser: '',
-        connectedAccounts: []
+        connectedAccounts: [],
+        calendarEvents: []
     },
     reducers: {
         login: (state, action) => {
@@ -13,11 +14,14 @@ export const authSlice = createSlice({
         },
         populateAccounts: (state, action) => {
             state.connectedAccounts = action.payload
+        },
+        populateCalendarEvents: (state, action) => {
+            state.calendarEvents = action.payload
         }
     }
 })
 
-export const { login, populateAccounts } = authSlice.actions
+export const { login, populateAccounts, populateCalendarEvents } = authSlice.actions
 
 export default authSlice.reducer
 
@@ -64,6 +68,39 @@ export const loadAllAccounts = () => (dispatch) => {
             dispatch(populateAccounts(response["results"]))
         })
     )
+}
+
+export const loadAllCalendarEvents = async () => (dispatch) => {
+    const requestOptions = {
+        method: 'POST',
+        crossDomain: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            "username": "ipercy"
+        })
+
+    }
+    return (
+        fetch("http://localhost:3001/loadAllCalendarEvents", requestOptions)
+        .then(response => {
+            return response.json()
+        })
+        .then(response => {
+            dispatch(populateCalendarEvents(response["results"]))
+            return new Promise( (resolve, reject) => {
+
+                let name = 'Paul'
+        
+                if (name === 'Paul') {
+                   resolve("Promise resolved successfully");
+                }
+                else {
+                   reject(Error("Promise rejected"));
+                }
+             });
+        })
+    )
+
 }
 
 export const refreshAllAccounts= () => (dispatch) =>  {
