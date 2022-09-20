@@ -80,7 +80,7 @@ export const loadAllAccounts = (username) => (dispatch) => {
     )
 }
 
-export const loadAllCalendarEvents = async () => (dispatch) => {
+export const loadAllCalendarEvents =  () => (dispatch) => {
     const requestOptions = {
         method: 'POST',
         crossDomain: true,
@@ -97,17 +97,7 @@ export const loadAllCalendarEvents = async () => (dispatch) => {
         })
         .then(response => {
             dispatch(populateCalendarEvents(response["results"]))
-            return new Promise( (resolve, reject) => {
 
-                let name = 'Paul'
-        
-                if (name === 'Paul') {
-                   resolve("Promise resolved successfully");
-                }
-                else {
-                   reject(Error("Promise rejected"));
-                }
-             });
         })
     )
 

@@ -8,6 +8,7 @@ import { isEmpty } from "lodash"
 import { Calendar } from 'react-calendar'
 import './calendar.css'
 import moment from 'moment'
+import 'moment-timezone'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -16,7 +17,9 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { login, loginUser, loadAllCalendarEvents } from '../auth/authSlice'
-
+import { format } from "date-fns";
+import { ThirtyFpsTwoTone } from "@mui/icons-material";
+import _ from 'lodash'
 
 const styles = theme => ({
     input: {
@@ -49,34 +52,45 @@ class CalendarComponent extends React.Component {
             value: new Date(),
             datePickerValue: new Date(),
             textFieldValue: "",
+            // events: {
+            //     '2022-08-28': ["Get Diapers"],
+            //     '2022-08-30': ["Change Oil"],
+            //     '2022-09-01': ["Order Formula"]
+
+            // },
             events: {
-                '2022-08-28': ["Get Diapers"],
-                '2022-08-30': ["Change Oil"],
-                '2022-09-01': ["Order Formula"]
 
             },
             selectedEvents: [],
             nextThirtyDays: []
         }
     }
-   async componentDidUpdate() {
+    componentDidUpdate(prevProps) {
+        console.log("events", this.props.calendarEvents)
         if (isEmpty(this.props.calendarEvents)) {
             console.log("Loading Calendar events")
             this.props.loadAllCalendarEvents()
-            console.log(this.props.calendarEvents)
-
+            console.log("User connected:", this.props.connectedUser)
+            console.log("Loaded events:", this.props.calendarEvents)
+        } else if (!_.isEqual(prevProps.calendarEvents, this.props.calendarEvents )){
+            console.log("Updating events list")
+            this.handleDateChange(this.state.value)
+            this.updateLists(prevProps.calendarEvents)
+            console.log("User connected:", this.props.connectedUser)
+            console.log("Loaded events:", this.props.calendarEvents)
         }
-        console.log("User connected:", this.props.connectedUser)
-        console.log("Loaded events:", this.props.calendarEvents)
+
     }
 
     handleDateChange(eventTarget) {
         var tempList = {}
-        for (var date in this.state.events) {
-            var dateFormatted = new Date(date + 'T00:00:00')
+        console.log(this.state.events)
+        for (var [key, value] of Object.entries(this.state.events)) {
+            console.log(key, value)
+            var dateFormatted = new Date(key)
             const daysBetweenDates = getNumberOfDays(eventTarget, dateFormatted);
             if (daysBetweenDates > 0 && daysBetweenDates < 30) {
-                tempList[date] = this.state.events[date]
+                tempList[key] = this.state.events[key]
             }
         }
 
@@ -86,6 +100,23 @@ class CalendarComponent extends React.Component {
             selectedEvents: this.state.events[moment(eventTarget).format("YYYY-MM-DD")],
             nextThirtyDays: tempList
         })
+    }
+    updateLists(prevCalendarEvents) {
+        if (prevCalendarEvents.length < this.props.calendarEvents.length) {
+            var tempList = {}
+            for (var currentEvent of this.props.calendarEvents) {
+                var dateString = moment(currentEvent.event_date).format("YYYY-MM-DD")
+                if (tempList[dateString]) {
+                    tempList[dateString].push(currentEvent.note)
+                } else {
+                    tempList[dateString] = [currentEvent.note]
+                }
+            }
+            this.setState({
+                events: tempList
+             })
+        }
+
     }
     handleDatePickerChange(eventTarget) {
         this.setState({
@@ -104,7 +135,13 @@ class CalendarComponent extends React.Component {
     
 
     componentDidMount() {
-        this.handleDateChange(this.state.value)
+
+        if (isEmpty(this.props.calendarEvents)) {
+            console.log("Loading Calendar events")
+            this.props.loadAllCalendarEvents()
+        } 
+        console.log("User connected:", this.props.connectedUser)
+        console.log("Loaded events:", this.props.calendarEvents)
     }
     render() {
         const { classes } = this.props;
