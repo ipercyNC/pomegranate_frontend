@@ -1,41 +1,34 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
+import React from "react";
 import Typography from '@mui/material/Typography';
-import { Menu, MenuItem } from '@material-ui/core';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
-import { login, loginUser, loadAllAccounts, refreshAllAccounts } from '../auth/authSlice'
+
+import { connect } from 'react-redux'
+import { loadAllAccounts, refreshAllAccounts } from '../auth/authSlice'
 import { isEmpty } from "lodash"
 
 
 class AccountsComponent extends React.Component {
-
-    constructor(props) {
-        super(props)
-    }
-
 
     componentDidMount() {
         if (isEmpty(this.props.connectedAccounts)) {
             console.log("Connecting accounts")
             console.log(this.props.connectedUser)
             this.props.loadAllAccounts(this.props.connectedUser)
+        }
+    }
 
+    componentDidUpdate() {
+        if (isEmpty(this.props.connectedAccounts)) {
+            console.log("Connecting accounts")
+            console.log(this.props.connectedUser)
+            this.props.loadAllAccounts(this.props.connectedUser)
         }
         console.log("User connected:", this.props.connectedUser)
+        console.log("Auth token: ", this.props.authToken)
         console.log("Connected accounts:", this.props.connectedAccounts)
     }
 
@@ -78,6 +71,7 @@ class AccountsComponent extends React.Component {
 const mapStateToProps = state => {
     return {
         connectedUser: state.auth.connectedUser,
+        authToken: state.auth.authToken,
         connectedAccounts: state.auth.connectedAccounts
     }
 }

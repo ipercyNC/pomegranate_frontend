@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Grid';
-import FilledInput from '@mui/material/FilledInput';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import FormControl from "@material-ui/core/FormControl";
-import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import Input from '@mui/material/Input';
-import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
-import { login, loginUser, loadAllCalendarEvents } from '../auth/authSlice'
+import { connect } from 'react-redux'
+import { loginUser, verifyToken } from '../auth/authSlice'
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 
@@ -42,8 +38,13 @@ class LoginForm extends React.Component {
     handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
+    handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            this.handleLogin()
+          }
+    }
     async handleLogin() {
-        if (this.props.connectedUser == undefined || this.props.connectedUser == "") {
+        if (this.props.connectedUser === undefined || this.props.connectedUser === "") {
             console.log("Logging in user")
             await this.props.loginUser(this.state.username, this.state.password)
         }
@@ -63,7 +64,7 @@ class LoginForm extends React.Component {
                         Pomegranate
                     </Typography>
                     <Grid item xs={12}>
-                        <FormControl variant="standard">
+                        <FormControl variant="standard" onKeyPress={this.handleKeyDown.bind(this)}>
                             <TextField
                                 placeholder="Username"
                                 id="standard-start-adornment"
@@ -91,7 +92,7 @@ class LoginForm extends React.Component {
                                 placeholder="Password"
                                 sx={{ margin: 2 }}
                             />
-                            <Button variant="contained" sx={{ margin: 2 }} onClick={this.handleLogin.bind(this)}>Login</Button>
+                            <Button variant="contained" sx={{ margin: 2 }} onKeyDown={this.handleKeyDown.bind(this)} onClick={this.handleLogin.bind(this)}>Login</Button>
 
                         </FormControl>
                     </Grid>
@@ -109,6 +110,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => {
     return {
         loginUser: (username, password) => dispatch(loginUser(username, password)),
+
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(LoginForm);

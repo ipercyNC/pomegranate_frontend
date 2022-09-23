@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TextField from "@material-ui/core/TextField";
-import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
+import { connect } from 'react-redux'
 import { isEmpty } from "lodash"
 import { Calendar } from 'react-calendar'
 import './calendar.css'
@@ -12,13 +12,11 @@ import 'moment-timezone'
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { withStyles, createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { login, loginUser, loadAllCalendarEvents } from '../auth/authSlice'
-import { format } from "date-fns";
-import { ThirtyFpsTwoTone } from "@mui/icons-material";
+import { loginUser, loadAllCalendarEvents, createEvent } from '../auth/authSlice'
 import _ from 'lodash'
 
 const styles = theme => ({
@@ -119,6 +117,7 @@ class CalendarComponent extends React.Component {
 
     }
     handleDatePickerChange(eventTarget) {
+        console.log(eventTarget)
         this.setState({
             datePickerValue: eventTarget
         })
@@ -129,9 +128,15 @@ class CalendarComponent extends React.Component {
         })
     }
     addNote() {
-        console.log("hey")
-        console.log(this.state.datePickerValue, this.state.textFieldValue)
-    }
+        console.log("hey", this.state.datePickerValue)
+        var date_ = new Date()
+        var day_ = (date_.getDate() < 10 ? '0' : '') + date_.getDate()
+        var month_ = (date_.getMonth() + 1 < 10 ? '0' : '') + (date_.getMonth() + 1)
+        var year_ = date_.getFullYear()
+        console.log([year_, month_, day_].join('-'))
+        console.log([year_, month_, day_].join('-'),this.state.textFieldValue, this.props.connectedUser)
+        this.props.createEvent([year_, month_, day_].join('-'),this.state.textFieldValue, this.props.connectedUser)
+    } 
     
 
     componentDidMount() {
@@ -265,7 +270,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch) => {
     return {
         loginUser: () => dispatch(loginUser()),
-        loadAllCalendarEvents: () => dispatch(loadAllCalendarEvents())
+        loadAllCalendarEvents: () => dispatch(loadAllCalendarEvents()),
+        createEvent: (date_, note_, username) => dispatch(createEvent(date_, note_, username))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CalendarComponent));

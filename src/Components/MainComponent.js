@@ -1,40 +1,18 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import AppBar from '@mui/material/AppBar';
+import React from "react";
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { Menu } from '@material-ui/core';
-import MuiMenuItem from "@material-ui/core/MenuItem"
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import { connect, useSelector, useDispactch, useDispatch } from 'react-redux'
-import { login, loginUser, loadAllAccounts, refreshAllAccounts } from '../auth/authSlice'
-import { isEmpty } from "lodash"
+import { connect } from 'react-redux'
+import { setAuthToken, setConnectedUser, verifyToken } from '../auth/authSlice'
 import AccountsComponent from './AccountsComponent'
 import CalendarComponent from './CalendarComponent'
 import LoginForm from './LoginForm'
 import HeaderBar from "./HeaderBar";
-import styled from "styled-components";
-const MenuItem = styled(MuiMenuItem)`
-  justify-content: flex-end;
-`;
 
 class MainComponent extends React.Component {
 
     constructor(props) {
         super(props)
         this.state = {
-            currentComponent: "main",
+            currentComponent: "main"
         }
 
     }
@@ -48,18 +26,50 @@ class MainComponent extends React.Component {
             this.setState({ currentComponent: "calendar" })
         }
     }
+    async componentDidUpdate() {
+
+        if (!this.props.authToken){
+            var token = localStorage.getItem('authToken')
+            if (token) {
+                this.props.setAuthToken(token)
+                var res = await this.props.verifyToken(token)
+                console.log(res)
+                console.log(res['VerifiedUser'])
+                if (res['VerifiedUser']){
+                    console.log("okay", this.props.setConnectedUser(res['VerifiedUser']))
+                }
+            }
+        }
+    }
+    async componentDidMount() {
+        console.log("here")
+        if (!this.props.authToken){
+            var token = localStorage.getItem('authToken')
+            if (token) {
+                this.props.setAuthToken(token)
+                var res = await this.props.verifyToken(token)
+                console.log(res)
+                console.log(res['VerifiedUser'])
+                if (res['VerifiedUser']){
+                    console.log("okay", this.props.setConnectedUser(res['VerifiedUser']))
+                }
+            }
+            
+        }
+    }
 
     render() {
         return (
             <Box sx={{ flexGrow: 1 }}>
-                {!this.props.connectedUser ?
-                    <LoginForm />
-                    :
+                {this.props.connectedUser || this.props.authToken ?
+
                     <div>
                         <HeaderBar handleClick={this.handleClick} />
                         {this.state.currentComponent === "main" && <AccountsComponent />}
                         {this.state.currentComponent === "calendar" && <CalendarComponent />}
                     </div>
+                    :
+                    <LoginForm />
                 }
 
             </Box >
@@ -70,11 +80,15 @@ class MainComponent extends React.Component {
 const mapStateToProps = state => {
     return {
         connectedUser: state.auth.connectedUser,
+        authToken: state.auth.authToken
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        setConnectedUser: (user) => dispatch(setConnectedUser(user)),
+        setAuthToken: (authToken) => dispatch(setAuthToken(authToken)),
+        verifyToken: (token) => dispatch(verifyToken(token))
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MainComponent);
